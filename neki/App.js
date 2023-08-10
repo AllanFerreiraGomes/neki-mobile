@@ -1,20 +1,26 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Login from './src/pages/login/Login'; // Importe seu componente de login aqui
-import Cadastro from './src/pages/cadastro/Cadastro'; // Importe seu componente de cadastro aqui
+import { createStackNavigator } from '@react-navigation/stack';
+import { AccessTokenProvider } from '../neki/context/AccessTokenContext';
+import {IdFuncionarioProvider} from '../neki/context/IdFuncionarioContext';
+import Login from './src/pages/login/Login'
+import Home from '../neki/src/pages/cadastro/Cadastro';
+import Cadastro  from '../neki/src/pages/cadastro/Cadastro';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Cadastro" component={Cadastro} />
-        {/* Adicione outras telas aqui conforme necessário */}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AccessTokenProvider>
+      <IdFuncionarioProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="Cadastro" component={Cadastro} />
+        </Stack.Navigator>
+        </NavigationContainer>
+      </IdFuncionarioProvider>
+    </AccessTokenProvider>
   );
 };
 

@@ -1,4 +1,4 @@
-import { RequestAPI } from './api';
+import axios from "axios";
 
 const registerUser = async (name, login, password) => {
   try {
@@ -10,7 +10,7 @@ const registerUser = async (name, login, password) => {
       role: ["ROLE_ADM"]
     };
 
-    const response = await RequestAPI.post('/auth/signup', userData);
+    const response = await axios.post('http://localhost:8080/api/auth/signup', userData);
 
      const responseData = response.data;
 

@@ -1,88 +1,60 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity, StyleSheet, Snackbar } from 'react-native';
-import { IconButton } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Importe os ícones corretos
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { IdFuncionarioContext } from '../../../context/IdFuncionarioContext';
+import { AccessTokenContext } from '../../../context/AccessTokenContext';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
-import { registerUser } from '../../services/RegisterService'; // Verifique se o caminho está correto
+const Login = () => {
+  const [login, setLogin] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState(false);
+  const { userId, setUserId } = useContext(IdFuncionarioContext);
+  const { accessToken, setAccessToken } = useContext(AccessTokenContext);
+  const navigation = useNavigation();
 
-const Cadastro = () => {
-  const [registerData, setRegisterData] = useState({
-    name: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
-    showPassword: false,
-    showConfirmPassword: false,
-  });
+  const handleLogin = async () => {
+    try {
+      const dataLogin = {
+        login: login,
+        password: password,
+      };
 
-  const [passwordsMatch, setPasswordsMatch] = useState(true);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
-  const [showErrorMessage, setShowErrorMessage] = useState(false);
+      const response = await axios.post('http://localhost:8080/api/auth/signin', dataLogin);
 
-  const handleInputChange = (name, value) => {
-    setRegisterData((prevData) => ({ ...prevData, [name]: value }));
-  };
-
-  const handleShowPasswordToggle = () => {
-    setRegisterData((prevData) => ({ ...prevData, showPassword: !prevData.showPassword }));
-  };
-
-  const handleShowConfirmPasswordToggle = () => {
-    setRegisterData((prevData) => ({ ...prevData, showConfirmPassword: !prevData.showConfirmPassword }));
-  };
-
-  const handleSnackbarClose = () => {
-    setShowErrorMessage(false);
-  };
-
-  const handleRegister = async () => {
-    if (registerData.password === registerData.confirmPassword) {
-      setPasswordsMatch(true);
-
-      try {
-        const response = await registerUser(registerData.name, registerData.username, registerData.password);
-
-        if (response) {
-          setRegistrationSuccess(true);
-          setShowErrorMessage(false);
-          console.log('Cadastro realizado com sucesso!');
-          // Aqui você pode adicionar lógica para redirecionar para a tela de login
-          // ...
-
-        } else {
-          setShowErrorMessage(true);
-          console.log('Erro ao fazer a solicitação de cadastro:', response.status);
-        }
-      } catch (error) {
-        setShowErrorMessage(true);
-        console.error('Erro ao fazer a solicitação de cadastro:', error);
+      if (response.status === 200) {
+        setUserId(response.data.id);
+        setAccessToken(response.data.token);
+      } else {
+        console.log('Erro ao fazer a solicitação de login:', response.status);
+        setLoginError(true);
       }
-    } else {
-      setPasswordsMatch(false);
+    } catch (error) {
+      setLoginError(true);
+      console.error('[Entrei no catch]:', error);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cadastrar-se</Text>
+      <Text style={styles.title}>Login</Text>
       <TextInput
-        style={styles.input}
-        placeholder="Nome"
-        value={registerData.name}
-        onChangeText={(value) => handleInputChange('name', value)}
+        style={[styles.input, loginError && styles.inputError]}
+        placeholder="Login"
+        onChangeText={(text) => setLogin(text)}
       />
-      {/* Adicione outros campos de input conforme necessário */}
-      <Button title="Salvar" onPress={handleRegister} />
-      <Snackbar
-        visible={showErrorMessage}
-        onDismiss={handleSnackbarClose}
-        duration={5000}
-      >
-        <Text style={styles.errorMessage}>Login Inválido, Digite Outro</Text>
-      </Snackbar>
-      {registrationSuccess && (
-        <Text style={styles.successMessage}>Cadastro realizado com sucesso!</Text>
-      )}
+      <TextInput
+        style={[styles.input, loginError && styles.inputError]}
+        placeholder="Password"
+        onChangeText={(text) => setPassword(text)}
+        secureTextEntry
+      />
+      {loginError && <Text style={styles.errorText}>Credenciais inválidas</Text>}
+      <Button title="Login" onPress={handleLogin} />
+     
+      <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
+        <Text style={styles.linkText}>Cadastrar-se</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -92,29 +64,35 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#333',
+    paddingHorizontal: 20,
   },
   title: {
-    fontSize: 20,
-    marginBottom: 16,
-    color: 'white',
+    fontSize: 24,
+    marginBottom: 20,
   },
   input: {
-    width: '100%',
+    width: '80%',
     height: 40,
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 8,
-    marginBottom: 12,
-    paddingLeft: 8,
+    borderColor: 'black',
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
-  errorMessage: {
+  inputError: {
+    borderColor: 'red',
+    animation: 'vibrate 0.3s infinite alternate',
+  },
+  linkText: {
+    color: 'blue',
+    textDecorationLine: 'underline',
+    marginTop: 10,
+    fontSize: 12,
+  },
+  errorText: {
     color: 'red',
-  },
-  successMessage: {
-    color: 'green',
+    marginBottom: 10,
   },
 });
 
-export default Cadastro;
+export default Login;
