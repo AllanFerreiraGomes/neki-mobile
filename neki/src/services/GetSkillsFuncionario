@@ -1,0 +1,17 @@
+import axios from "axios"
+
+ const getSkillsFuncionario = async (userId,tokem) => {
+    try {
+        const response = await axios.get(`http://localhost:8080/api/funcionarios/${userId}/skills/listar`,{
+            headers: {
+                Authorization: `Bearer ${tokem}`
+            }
+        }); 
+        console.log(response)
+        return response.data; 
+    } catch (e) {
+        console.log(e.response)
+        return e.response
+    }
+}
+export default getSkillsFuncionario;

@@ -25,6 +25,7 @@ const Login = () => {
       if (response.status === 200) {
         setUserId(response.data.id);
         setAccessToken(response.data.token);
+        navigation.navigate('Home')
       } else {
         console.log('Erro ao fazer a solicitação de login:', response.status);
         setLoginError(true);
