@@ -10,7 +10,6 @@ import axios from 'axios';
 const Home = () => {
     const navigation = useNavigation();
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [skillsFuncionario, setSkillsFuncionario] = useState([]);
     const [allSkills, setAllSkills] = useState([]);
     const [skillsToAdd, setSkillsToAdd] = useState([]);
@@ -24,28 +23,26 @@ const Home = () => {
     const fetchAllSkills = async () => {
         try {
             const allSkillsData = await GetAllSkills(tokem);
-    
+
             const skillsNotInFuncionario = allSkillsData.filter(
                 (skill) => !skillsFuncionario.some((funcSkill) => funcSkill.id === skill.id)
             );
-    
+
             setAllSkills(skillsNotInFuncionario);
         } catch (error) {
             console.error('Error fetching all skills:', error);
         }
     };
-    
-    
 
     const fetchSkillsFuncionario = async () => {
-      
+
         try {
-            const response = await axios.get(`http://localhost:8080/api/funcionarios/${userId}/skills/listar`,{
+            const response = await axios.get(`http://localhost:8080/api/funcionarios/${userId}/skills/listar`, {
                 headers: {
                     Authorization: `Bearer ${tokem}`
                 }
-            }); 
-            console.log('skill Funciotarios',response)
+            });
+            console.log('skill Funciotarios', response)
             setSkillsFuncionario(response.data)
             console.log(response.data)
         } catch (e) {
@@ -65,7 +62,6 @@ const Home = () => {
     };
 
     useEffect(() => {
-        console.log("UseEfect" , userId)
         fetchSkillsFuncionario();
         fetchUserData();
         fetchAllSkills();
@@ -76,8 +72,6 @@ const Home = () => {
             (skill) => !skillsFuncionario.some((funcSkill) => funcSkill.id === skill.id)
         );
     };
-
-     
 
     const handleAddSkill = async (skillId) => {
         const dataPost = {
@@ -100,12 +94,12 @@ const Home = () => {
             console.log('Skill adicionada com sucesso!');
 
             fetchSkillsFuncionario();
+            fetchAllSkills();
 
             setSkillsFuncionario((prevSkills) => [
                 ...prevSkills,
                 { id: skillId, level: selectedSkillLevel },
             ]);
-
             setAllSkills((prevSkills) => prevSkills.filter((skill) => skill.id !== skillId));
         } catch (error) {
             console.error('Erro ao adicionar a skill:', error);
@@ -127,13 +121,13 @@ const Home = () => {
                     },
                 }
             );
-
             console.log('Skill removida com sucesso!');
 
-            fetchAllSkills();
             setSkillsFuncionario((prevSkills) =>
-                prevSkills.filter((skill) => skill.id !== skillId)
-            );
+                prevSkills.filter((skill) => skill.id !== skillId));
+
+
+            useEffect();
         } catch (error) {
             console.error('Erro ao remover a skill:', error);
         }
@@ -150,11 +144,12 @@ const Home = () => {
             <Button title="Logout" onPress={handleLogout} />
             <TextInput
                 value={funcionarioDados?.name}
-                style={styles.textboxLeftVC}w
+                style={styles.textboxLeftVC} w
                 editable={false}
             />
             <Text style={styles.subtitle}>Habilidades:</Text>
             <FlatList
+                style={styles.listaHabilidadesPossui}
                 data={skillsFuncionario}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
@@ -163,7 +158,6 @@ const Home = () => {
                         <View style={styles.skillDetails}>
                             <Text>Name: {item.name}</Text>
                             <Text>Level: {item.level}</Text>
-                            <Text>Description: {item.description}</Text>
                         </View>
                         <Button
                             title="Remove"
@@ -175,7 +169,8 @@ const Home = () => {
 
             <Text style={styles.subtitle}>Habilidades Que Não Possui:</Text>
             <FlatList
-                 data={getSkillsNotInFuncionario()}
+                style={styles.lista}
+                data={getSkillsNotInFuncionario()}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.skillItem}>
@@ -202,13 +197,13 @@ const Home = () => {
     );
 };
 
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 20,
+        height: '50',
     },
     title: {
         fontSize: 24,
@@ -217,13 +212,16 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 18,
         marginVertical: 10,
+        textDecorationLine: 'underline',
     },
     textboxLeftVC: {
-        width: '100%',
+        width: '50%',
         borderWidth: 1,
         borderColor: 'black',
         paddingHorizontal: 10,
-        marginBottom: 10,
+        marginBottom: 1,
+        textAlign: 'center',
+        fontSize: 14
     },
     skillItem: {
         flexDirection: 'row',
@@ -246,6 +244,16 @@ const styles = StyleSheet.create({
         marginRight: 10,
         paddingHorizontal: 5,
     },
+    //habilidades que o cara não 
+    lista: {
+        flex: 1,
+        height: '50%'
+    },
+    listaHabilidadesPossui: {
+        width: '100%',
+        flex: 1,
+
+    }
 });
 
 export default Home;
