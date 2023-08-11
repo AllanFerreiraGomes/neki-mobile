@@ -110,7 +110,6 @@ const Home = () => {
         const dataDelete = {
             skillId: skillId,
         };
-
         try {
             await axios.delete(
                 `http://localhost:8080/api/funcionarios/${userId}/skills/excluir`,
@@ -125,8 +124,6 @@ const Home = () => {
 
             setSkillsFuncionario((prevSkills) =>
                 prevSkills.filter((skill) => skill.id !== skillId));
-
-
             useEffect();
         } catch (error) {
             console.error('Erro ao remover a skill:', error);
@@ -140,8 +137,11 @@ const Home = () => {
 
     return (
         <View style={styles.container}>
+            <Button 
+            style={styles.logout}
+            title="Logout" 
+            onPress={handleLogout} />
             <Text style={styles.title}>Home</Text>
-            <Button title="Logout" onPress={handleLogout} />
             <TextInput
                 value={funcionarioDados?.name}
                 style={styles.textboxLeftVC} w
@@ -252,7 +252,8 @@ const styles = StyleSheet.create({
     listaHabilidadesPossui: {
         width: '100%',
         flex: 1,
-
+    },
+    logout: {
     }
 });
 
